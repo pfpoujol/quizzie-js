@@ -5,6 +5,7 @@ const express = require("express");
 const app = express();
 
 app.use(express.static("exercises"));
+app.use(express.static("evaluations"));
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function(request, response) {
