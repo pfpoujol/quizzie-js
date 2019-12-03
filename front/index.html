@@ -6,13 +6,12 @@
     <title>Quizzie</title>
     <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
 
-    <link rel="stylesheet" href="../public/bootstrap.css">
-    <script src="../public/quizzie.js"></script>
+    <link rel="stylesheet" href="bootstrap.css">
+    <script src="quizzie.js"></script>
 </head>
 <body>
     <div class="container-fluid ">
         <div class="alert alert-info" role="alert">
-            <samp>start chrome --disable-features=CrossSiteDocumentBlockingAlways,CrossSiteDocumentBlockingIfIsolating</samp>
             <section>chrome://settings/?search=bloquer+les+trackers+intersites</section>
         </div>
 
@@ -22,18 +21,18 @@
                     <span id="labelCurrQuestion"></span><span id="labelTotQuestion"></span>
 
                 </p>
-                <p id="labelScore">X/X points</p>
+                <p id="labelScore"></p>
                 <p id="labelRecord"></p>
                 <div class="flex-wrap">
                     <button id="btnEditer">Editer</button>
                     <button id="btnLancer" onclick="lancerQuiz()">Lancer</button>
-                    <button id="btnHome">Accueil</button>
+                    <button id="btnHome" onclick="goBackHome()">Accueil</button>
                     <button id="btnSuite" onclick="showNextQuestion()">Suivante</button>
                 </div>
             </div>
             <div  class="col-8 border-left">
                 <div id="helloHome">
-                    <p class="h1">Bienvenue sur Quizzie</p>
+                    <p class="h2">Bienvenue sur Quizzie</p>
                     <p>Vous pouvez lancer le quiz ou l'éditer our y apporter vos propres questions</p>
                 </div>
                 <div id="panelRight">
