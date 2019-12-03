@@ -87,6 +87,8 @@ function setExAequoRecord(newName) {
     const record = getRecord();
     if (!record.holderName.includes(newName)) {
         record.holderName += ', ' + newName;
+        localStorage.setItem('record', JSON.stringify(record));
+        labelRecord.innerText = 'Record détenu par ' + record.holderName + ' avec ' + record.score + ' point(s)';
     }
 
 }
