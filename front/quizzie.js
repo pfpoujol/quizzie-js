@@ -1,5 +1,5 @@
 // globals variables
-let firstInitialisation= false;
+let dsAlreadyExist = false;
 let currentQuestionIndex = 0;
 let currentScore = 0;
 let currentMaxScore;
@@ -9,7 +9,10 @@ let panelRight, labelCurrQuestion, labelTotQuestion, labelScore, labelRecord, bt
 
 
 if (!localStorage.questions || !localStorage.creationDate || !localStorage.modificationDate || !localStorage.name || !localStorage.record) {
+
     fetchData('https://love-js.glitch.me/quizzie');
+} else {
+    dsAlreadyExist = true;
 }
 
 
@@ -17,7 +20,6 @@ window.addEventListener('load', function () {
     labelTotQuestion = document.getElementById("labelTotQuestion");
 
     labelCurrQuestion = document.getElementById("labelCurrQuestion");
-    // labelCurrQuestion.style.display = "none";
 
     labelScore = document.getElementById("labelScore");
     labelScore.style.display = "none";
@@ -32,7 +34,7 @@ window.addEventListener('load', function () {
     helloHome = document.getElementById("helloHome");
     panelRight = document.getElementById("panelRight");
 
-    if(!firstInitialisation){
+    if(dsAlreadyExist){
         labelTotQuestion.innerText = getQuestions().length + ' question(s)';
         labelRecord.innerText = 'Record détenu par ' + getRecord().holderName + ' avec ' + getRecord().score + ' point(s)';
         currentMaxScore = getMaxScore();
@@ -57,8 +59,6 @@ async function fetchData(url) {
         const myJson = await response.json();
         await setLocalStorage(myJson);
     })();
-
-    firstInitialisation=true;
 }
 
 function getQuestions() {
@@ -66,10 +66,15 @@ function getQuestions() {
 }
 
 function getRecord() {
-    return JSON.parse(localStorage.record);
+    const record = JSON.parse(localStorage.record);
+    record.creationDate = new Date(record.creationDate);
+    return record;
 }
 
 function setNewRecord(newName, newScore){
+    if(newName === ''){
+        newName = 'Anonymous';
+    }
     const oldRecord = getRecord();
     const newRecord = {
         holderName: newName,
@@ -85,7 +90,7 @@ function setNewRecord(newName, newScore){
 
 function setExAequoRecord(newName) {
     const record = getRecord();
-    if (!record.holderName.includes(newName)) {
+    if (!record.holderName.includes(newName) || newName !== '') {
         record.holderName += ', ' + newName;
         localStorage.setItem('record', JSON.stringify(record));
         labelRecord.innerText = 'Record détenu par ' + record.holderName + ' avec ' + record.score + ' point(s)';
@@ -106,8 +111,8 @@ function getPropositions(index) {
 }
 
 function lancerQuiz() {
+    labelTotQuestion.innerText = '1/' + getQuestions().length + ' question(s)';
     labelScore.innerText = currentScore + '/' + currentMaxScore + 'point(s)';
-
     let questions = getQuestions();
     currentQuestionIndex = 0;
     helloHome.style.display = "none";
@@ -162,6 +167,7 @@ function showNextQuestion() {
         terminateQuiz();
     } else {
         currentQuestionIndex++;
+        labelTotQuestion.innerText = 1 + currentQuestionIndex + '/' + getQuestions().length + ' question(s)';
         showQuestion(getQuestions()[currentQuestionIndex]);
     }
 }
@@ -172,7 +178,6 @@ function terminateQuiz() {
     btnSuite.innerText = "Suivante";
 
     if (currentScore >= getRecord().score) {
-        btnHome.style.display = 'none';
         formWhatUrName = document.createElement('div');
         formWhatUrName.classList.add('form-group');
         formWhatUrName.innerHTML += `
@@ -180,13 +185,14 @@ function terminateQuiz() {
         <input type="text" class="form-control" name="whatUrName" id="name" placeholder="Votre nom">
         `;
         panelRight.appendChild(formWhatUrName);
+        /* ça fonctionne mais je péfère passer le record en tant qu'anonymous si l'input n'est pas rempli
         document.querySelector('[name="whatUrName"]').addEventListener("input", (input) => {
-            if (document.querySelector('[name="whatUrName"]').value === "") {
-                btnHome.style.display = 'none';
-            } else {
-                btnHome.style.display = 'block';
-            }
-        }, false);
+                    if (document.querySelector('[name="whatUrName"]').value === "") {
+                        btnHome.style.display = 'none';
+                    } else {
+                        btnHome.style.display = 'block';
+                    }
+                }, false);*/
 
 
         if (currentScore > getRecord().score) {
@@ -221,10 +227,13 @@ function goBackHome() {
 
 
     }
+    labelTotQuestion.innerText = getQuestions().length + ' question(s)';
+    btnSuite.innerText = "Suivante";
     btnLancer.style.display = "block";
     helloHome.style.display = "block";
-    btnHome.style.display = "none";
     btnEditer.style.display = "block";
+    labelCurrQuestion.style.display = "none";
+    btnHome.style.display = "none";
     btnSuite.style.display = "none";
     labelScore.style.display = "none";
     panelRight.innerHTML = "";
