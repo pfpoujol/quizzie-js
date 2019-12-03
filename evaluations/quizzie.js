@@ -156,7 +156,9 @@ function updateScore(propositions) {
             currentScore--;
         }
     }
-    let selectedValue = checkboxes.value;
+    if (currentScore < 0) {
+        currentScore = 0;
+    }
     labelScore.innerText = currentScore + '/' + currentMaxScore + 'point(s)';
 }
 
