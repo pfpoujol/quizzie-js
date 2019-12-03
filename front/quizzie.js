@@ -1,4 +1,5 @@
 // globals variables
+let firstInitialisation= false;
 let currentQuestionIndex = 0;
 let currentScore = 0;
 let currentMaxScore;
@@ -31,10 +32,12 @@ window.addEventListener('load', function () {
     helloHome = document.getElementById("helloHome");
     panelRight = document.getElementById("panelRight");
 
+    if(!firstInitialisation){
+        labelTotQuestion.innerText = getQuestions().length + ' question(s)';
+        labelRecord.innerText = 'Record détenu par ' + getRecord().holderName + ' avec ' + getRecord().score + ' point(s)';
+        currentMaxScore = getMaxScore();
+    }
 
-    labelTotQuestion.innerText = getQuestions().length + ' question(s)';
-    labelRecord.innerText = 'Record détenu par ' + getRecord().holderName + ' avec ' + getRecord().score + ' point(s)';
-    currentMaxScore = getMaxScore();
 });
 
 async function fetchData(url) {
@@ -44,6 +47,9 @@ async function fetchData(url) {
         localStorage.setItem('name', myJson.name);
         localStorage.setItem('questions', JSON.stringify(myJson.questions));
         localStorage.setItem('record', JSON.stringify(myJson.record));
+        labelTotQuestion.innerText = myJson.questions.length + ' question(s)';
+        labelRecord.innerText = 'Record détenu par ' + myJson.record.holderName + ' avec ' + myJson.record.score + ' point(s)';
+        currentMaxScore = getMaxScore();
     }
 
     await (async function () {
@@ -51,8 +57,9 @@ async function fetchData(url) {
         const myJson = await response.json();
         await setLocalStorage(myJson);
     })();
-}
 
+    firstInitialisation=true;
+}
 
 function getQuestions() {
     return JSON.parse(localStorage.questions);
