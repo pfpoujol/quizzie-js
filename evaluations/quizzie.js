@@ -9,7 +9,6 @@ let panelRight, labelCurrQuestion, labelTotQuestion, labelScore, labelRecord, bt
 
 
 if (!localStorage.questions || !localStorage.creationDate || !localStorage.modificationDate || !localStorage.name || !localStorage.record) {
-
     fetchData('https://love-js.glitch.me/quizzie');
 } else {
     dsAlreadyExist = true;
@@ -97,6 +96,9 @@ function setExAequoRecord(newName) {
     }
 
 }
+function updateQuestions(updatedQuestions){
+    localStorage.setItem('questions', JSON.stringify(updatedQuestions));
+}
 
 function getMaxScore() {
     // une proposition true = 1 point
@@ -110,7 +112,54 @@ function getPropositions(index) {
     return getQuestions()[index].propositions;
 }
 
+function editQuiz () {
+    helloHome.style.display = "none";
+    btnEditer.style.display = "none";
+    btnHome.style.display = "block";
+    let questions = getQuestions();
+
+    let j = 0;
+    for (question of questions) {
+        const qElement = document.createElement("div");
+        qElement.setAttribute("id", "question"+j);
+        qElement.setAttribute("name", "question");
+        qElement.innerHTML += `
+        <legend><i class="fas fa-times" style="color: red; margin-right: 10px;"></i><span>${question.heading}</span></legend>
+    `;
+        let i = 0;
+        for (proposition of question.propositions) {
+            qElement.innerHTML +=`
+        <div class="form-check form-check-inline proposition">
+            <i class="fas fa-times" style="color: red; margin-right: 5px;" onclick="rmProposition(${j},${i})"></i>
+            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="proposition${i}" value="${i}">
+            <label class="form-check-label" for="proposition${i}">${proposition.content}</label>
+        </div>
+    `;
+            i++;
+        }
+        qElement.innerHTML += '<input type="text" name="question'+j+'">';
+        panelRight.appendChild(qElement);
+        j++
+    }
+    panelRight.innerHTML += '<div><input type="text" name="question'+j+'"></div>';
+    // document.querySelectorAll("div[name='question']")
+}
+
+function rmProposition(qIndex, pIndex){
+    const questions = getQuestions();
+    questions[qIndex].propositions.splice(pIndex,1);
+    updateQuestions(questions);
+    domRemoveAllChilds(panelRight);
+    editQuiz();
+
+}
+function domRemoveAllChilds(parent){
+    while (parent.firstChild) {
+        parent.firstChild.remove();
+    }
+}
 function lancerQuiz() {
+    domRemoveAllChilds(panelRight);
     labelTotQuestion.innerText = '1/' + getQuestions().length + ' question(s)';
     labelScore.innerText = currentScore + '/' + currentMaxScore + 'point(s)';
     let questions = getQuestions();
@@ -164,7 +213,7 @@ function updateScore(propositions) {
 
 function showNextQuestion() {
     updateScore(getPropositions(currentQuestionIndex));
-    panelRight.innerHTML = "";
+    domRemoveAllChilds(panelRight);
     if (currentQuestionIndex === getQuestions().length - 1) {
         terminateQuiz();
     } else {
@@ -238,7 +287,7 @@ function goBackHome() {
     btnHome.style.display = "none";
     btnSuite.style.display = "none";
     labelScore.style.display = "none";
-    panelRight.innerHTML = "";
+    domRemoveAllChilds(panelRight);
     currentQuestionIndex=0;
     currentScore = 0;
 

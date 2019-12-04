@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="quizzie.js"></script>
     -->
-
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
     <link rel="stylesheet" href="bootstrap.css">
     <script src="../evaluations/quizzie.js"></script>
 
@@ -27,10 +27,10 @@
                 </p>
                 <p id="labelScore"></p>
                 <p id="labelRecord"></p>
-                <div class="flex-wrap">
-                    <button id="btnEditer">Editer</button>
-                    <button id="btnLancer" onclick="lancerQuiz()">Lancer</button>
+                <div style="display: flex; flex-wrap: wrap;">
                     <button id="btnHome" onclick="goBackHome()">Accueil</button>
+                    <button id="btnEditer" onclick="editQuiz()">Editer</button>
+                    <button id="btnLancer" onclick="lancerQuiz()">Lancer</button>
                     <button id="btnSuite" onclick="showNextQuestion()">Suivante</button>
                 </div>
             </div>
