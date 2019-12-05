@@ -4,7 +4,7 @@ let currentQuestionIndex = 0;
 let currentScore = 0;
 let currentMaxScore;
 // elements html
-let panelRight, labelCurrQuestion, labelTotQuestion, labelScore, labelRecord, btnEditer, btnLancer, btnHome, btnSuite,
+let panelRight, labelTotQuestion, labelScore, labelRecord, btnEditer, btnLancer, btnHome, btnSuite,
     helloHome, formWhatUrName;
 
 
@@ -18,14 +18,13 @@ if (!localStorage.questions || !localStorage.creationDate || !localStorage.modif
 window.addEventListener('load', function () {
     labelTotQuestion = document.getElementById("labelTotQuestion");
 
-    labelCurrQuestion = document.getElementById("labelCurrQuestion");
-
     labelScore = document.getElementById("labelScore");
     labelScore.style.display = "none";
     labelRecord = document.getElementById("labelRecord");
 
     btnEditer = document.getElementById("btnEditer");
     btnLancer = document.getElementById("btnLancer");
+
     btnHome = document.getElementById("btnHome");
     btnHome.style.display = "none";
     btnSuite = document.getElementById("btnSuite");
@@ -37,6 +36,9 @@ window.addEventListener('load', function () {
         labelTotQuestion.innerText = getQuestions().length + ' question(s)';
         labelRecord.innerText = 'Record détenu par ' + getRecord().holderName + ' avec ' + getRecord().score + ' point(s)';
         currentMaxScore = getMaxScore();
+        if(getQuestions().length===0) {
+            btnLancer.style.display = 'none';
+        }
     }
 
 });
@@ -98,13 +100,29 @@ function setExAequoRecord(newName) {
 }
 function updateQuestions(updatedQuestions){
     localStorage.setItem('questions', JSON.stringify(updatedQuestions));
+    labelTotQuestion.innerText = getQuestions().length + ' question(s)';
+    if(updatedQuestions.length===0 ) {
+        btnLancer.style.display = "none";
+    } else {
+        btnLancer.style.display = "block";
+    }
+}
+
+function addQuestion(newQuestion) {
+    let questions = getQuestions();
+    questions.push({heading: newQuestion, propositions: []});
+    updateQuestions(questions);
 }
 
 function getMaxScore() {
     // une proposition true = 1 point
     let questions = getQuestions();
     let propositionsTrue = [];
-    questions.forEach(question => propositionsTrue = propositionsTrue.concat(question.propositions.filter(proposition => proposition.correct)));
+    questions.forEach(question => {
+        if(question.propositions.length > 0) {
+            propositionsTrue = propositionsTrue.concat(question.propositions.filter(proposition => proposition.correct));
+        }
+    });
     return propositionsTrue.length;
 }
 
@@ -124,7 +142,7 @@ function editQuiz () {
         qElement.setAttribute("id", "question"+j);
         qElement.setAttribute("name", "question");
         qElement.innerHTML += `
-        <legend><i class="fas fa-times" style="color: red; margin-right: 10px;"></i><span>${question.heading}</span></legend>
+        <legend><i class="fas fa-times" style="color: red; margin-right: 10px;" onclick="rmQuestion(${j})"></i><span>${question.heading}</span></legend>
     `;
         let i = 0;
         for (proposition of question.propositions) {
@@ -137,17 +155,37 @@ function editQuiz () {
     `;
             i++;
         }
-        qElement.innerHTML += '<input type="text" name="question'+j+'">';
+        qElement.innerHTML += '<input type="text" name="question'+j+'" placeholder="Ajouter une proposition">';
         panelRight.appendChild(qElement);
         j++
     }
-    panelRight.innerHTML += '<div><input type="text" name="question'+j+'"></div>';
-    // document.querySelectorAll("div[name='question']")
+    panelRight.innerHTML += '<div><input type="text" name="question'+j+'" placeholder="Ajouter une question"></div>';
+
+    panelRight.querySelectorAll('input[type="text"]').forEach(element => element.addEventListener("change", (e) => {
+        console.log(element.name, questions.length+1);
+        if(element.name==="question" + questions.length) {
+            console.log('question',element.value);
+            addQuestion(element.value);
+        } else {
+            console.log('proposition',element.value);
+            addProposition();
+        }
+        domRemoveAllChilds(panelRight);
+        editQuiz();
+    }, false))
 }
 
 function rmProposition(qIndex, pIndex){
     const questions = getQuestions();
     questions[qIndex].propositions.splice(pIndex,1);
+    updateQuestions(questions);
+    domRemoveAllChilds(panelRight);
+    editQuiz();
+
+}
+function rmQuestion(qIndex){
+    const questions = getQuestions();
+    questions.splice(qIndex,1);
     updateQuestions(questions);
     domRemoveAllChilds(panelRight);
     editQuiz();
@@ -169,7 +207,6 @@ function lancerQuiz() {
     btnEditer.style.display = "none";
     btnSuite.style.display = "block";
     btnHome.style.display = "block";
-    labelCurrQuestion.style.display = "block";
     labelScore.style.display = "block";
     showQuestion(questions[currentQuestionIndex]);
 }
@@ -236,14 +273,7 @@ function terminateQuiz() {
         <input type="text" class="form-control" name="whatUrName" id="name" placeholder="Votre nom">
         `;
         panelRight.appendChild(formWhatUrName);
-        /* ça fonctionne mais je péfère passer le record en tant qu'anonymous si l'input n'est pas rempli
-        document.querySelector('[name="whatUrName"]').addEventListener("input", (input) => {
-                    if (document.querySelector('[name="whatUrName"]').value === "") {
-                        btnHome.style.display = 'none';
-                    } else {
-                        btnHome.style.display = 'block';
-                    }
-                }, false);*/
+
 
 
         if (currentScore > getRecord().score) {
@@ -278,12 +308,14 @@ function goBackHome() {
 
 
     }
-    labelTotQuestion.innerText = getQuestions().length + ' question(s)';
+    const questions = getQuestions();
+    labelTotQuestion.innerText = questions.length + ' question(s)';
     btnSuite.innerText = "Suivante";
-    btnLancer.style.display = "block";
+    if (questions.length > 0) {
+        btnLancer.style.display = "block";
+    }
     helloHome.style.display = "block";
     btnEditer.style.display = "block";
-    labelCurrQuestion.style.display = "none";
     btnHome.style.display = "none";
     btnSuite.style.display = "none";
     labelScore.style.display = "none";
