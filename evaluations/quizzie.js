@@ -99,8 +99,19 @@ function setExAequoRecord(newName) {
     }
 
 }
+
+function resetRecord() {
+    localStorage.setItem('record', JSON.stringify({
+        holderName: "",
+        score: 0,
+        creationDate: null
+    }));
+    labelRecord.innerText = 'Aucun record pour le moment.';
+}
+
 function updateQuestions(updatedQuestions){
     localStorage.setItem('questions', JSON.stringify(updatedQuestions));
+    resetRecord();
     labelTotQuestion.innerText = getQuestions().length + ' question(s)';
     if(updatedQuestions.length===0 ) {
         btnLancer.style.display = "none";
@@ -155,6 +166,12 @@ function isQuizzPlayable() {
     }
 }
 
+function tooglePropositionValue(qIndex, pIndex) {
+    const questions = getQuestions();
+    questions[qIndex].propositions[pIndex].correct = !questions[qIndex].propositions[pIndex].correct;
+    updateQuestions(questions);
+}
+
 function editQuiz () {
     isQuizzPlayable();
     helloHome.style.display = "none";
@@ -175,7 +192,7 @@ function editQuiz () {
             qElement.innerHTML +=`
         <div class="form-check form-check-inline proposition">
             <i class="fas fa-times" style="color: red; margin-right: 5px;" onclick="rmProposition(${j},${i})"></i>
-            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${j}" value="${i}">
+            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${j}:${i}" value="${i}" ${ (proposition.correct ? "checked": "") }>
             <label class="form-check-label" for="proposition${i}">${proposition.content}</label>
         </div>
     `;
@@ -198,7 +215,19 @@ function editQuiz () {
             domRemoveAllChilds(panelRight);
             editQuiz();
         }, false)
-    })
+    });
+    panelRight.querySelectorAll('input[type="checkbox"]').forEach(element => {
+        element.addEventListener("change", (e) => {
+            const indexes = element.id.split(':').map(item => parseInt(item));
+            // indexes[0] -> index question
+            // indexes[1] -> index proposition
+            tooglePropositionValue(indexes[0], indexes[1]);
+            domRemoveAllChilds(panelRight);
+            currentMaxScore = getMaxScore();
+            editQuiz();
+        }, false)
+
+    });
 }
 
 function rmProposition(qIndex, pIndex){
