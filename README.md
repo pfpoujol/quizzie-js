@@ -3,4 +3,6 @@ Projet en cours
 
 Versionning : https://github.com/pfpoujol/quizzie-js
 
-Todo : édition du quiz
+Todo : 
+- correction des bugs
+- faire marcher font awesome sur glitch

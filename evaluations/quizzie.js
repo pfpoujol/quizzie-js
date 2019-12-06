@@ -33,10 +33,16 @@ window.addEventListener('load', function () {
     panelRight = document.getElementById("panelRight");
 
     if(dsAlreadyExist){
-        labelTotQuestion.innerText = getQuestions().length + ' question(s)';
-        labelRecord.innerText = 'Record détenu par ' + getRecord().holderName + ' avec ' + getRecord().score + ' point(s)';
+        record = getRecord();
+        questions = getQuestions();
+        labelTotQuestion.innerText = questions.length + ' question(s)';
+        if( record.creationDate ) {
+            labelRecord.innerText = 'Record détenu par ' + getRecord().holderName + ' avec ' + getRecord().score + ' point(s)';
+        } else {
+            labelRecord.innerText = 'Aucun record détenu pour le moment.';
+        }
         currentMaxScore = getMaxScore();
-        if(getQuestions().length===0) {
+        if(questions.length===0) {
             btnLancer.style.display = 'none';
         }
         isQuizzPlayable();
@@ -106,7 +112,7 @@ function resetRecord() {
         score: 0,
         creationDate: null
     }));
-    labelRecord.innerText = 'Aucun record pour le moment.';
+    labelRecord.innerText = 'Aucun record détenu pour le moment.';
 }
 
 function updateQuestions(updatedQuestions){
@@ -154,16 +160,20 @@ function getPropositions(index) {
  * si au moins 1 une question ne satifait pas cette condition, on cache le bouton "lancer".
  ***/
 function isQuizzPlayable() {
-    console.log("test");
     let questions = getQuestions();
-    qWithFewProp = questions.some((question) => {
-        return question.propositions.length <= 1 || question.propositions.every(proposition => proposition ? !proposition.correct : true);
-    });
-    if(qWithFewProp) {
+    if(questions.length === 0) {
         btnLancer.style.display = "none";
     } else {
-        btnLancer.style.display = "block";
+        qWithFewProp = questions.some((question) => {
+            return question.propositions.length <= 1 || question.propositions.every(proposition => proposition ? !proposition.correct : true);
+        });
+        if(qWithFewProp) {
+            btnLancer.style.display = "none";
+        } else {
+            btnLancer.style.display = "block";
+        }
     }
+
 }
 
 function tooglePropositionValue(qIndex, pIndex) {
@@ -320,7 +330,7 @@ function terminateQuiz() {
     btnSuite.style.display = 'none';
     btnSuite.innerText = "Suivante";
 
-    if (currentScore >= getRecord().score) {
+    if (currentScore >= getRecord().score && currentScore !== 0) {
         formWhatUrName = document.createElement('div');
         formWhatUrName.classList.add('form-group');
         formWhatUrName.innerHTML += `
@@ -328,8 +338,9 @@ function terminateQuiz() {
         <input type="text" class="form-control propositions" name="whatUrName" id="name" placeholder="Votre nom">
         `;
         panelRight.appendChild(formWhatUrName);
-
-
+        document.querySelector('[name="whatUrName"]').addEventListener("change", (e) => {
+            goBackHome();
+            }, false);
 
         if (currentScore > getRecord().score) {
             const success = document.createElement("div");
@@ -343,11 +354,13 @@ function terminateQuiz() {
             formWhatUrName.before(draw);
         }
     } else {
+        console.log(currentRecord);
         const ulose = document.createElement("p");
         ulose.classList.add('h2');
-        ulose.appendChild(document.createTextNode("Dommage, le record est toujours détenu par "+ currentRecord.holderName +" avec "+ currentRecord.score +" point(s)"));
+        ulose.appendChild(document.createTextNode( currentRecord.score === 0 ? "Vous n'avez pas décroché le record" : "Dommage, le record est toujours détenu par "+ currentRecord.holderName +" avec "+ currentRecord.score +" point(s)"));
         panelRight.appendChild(ulose);
     }
+
 }
 function goBackHome() {
     if (formWhatUrName){
@@ -357,18 +370,12 @@ function goBackHome() {
         } else {
             setNewRecord(name, currentScore);
         }
-
         formWhatUrName = undefined;
-    } else {
-
-
     }
     const questions = getQuestions();
     labelTotQuestion.innerText = questions.length + ' question(s)';
     btnSuite.innerText = "Suivante";
-    if (questions.length > 0) {
-        btnLancer.style.display = "block";
-    }
+    isQuizzPlayable();
     helloHome.style.display = "block";
     btnEditer.style.display = "block";
     btnHome.style.display = "none";
