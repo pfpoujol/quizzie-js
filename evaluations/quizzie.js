@@ -32,6 +32,7 @@ window.addEventListener('load', function () {
     helloHome = document.getElementById("helloHome");
     panelRight = document.getElementById("panelRight");
 
+    // pour ne pas executer tant que les données ne sont pas chargées dans le localStorage
     if (dsAlreadyExist) {
         record = getRecord();
         questions = getQuestions();
@@ -73,10 +74,26 @@ function getQuestions() {
     return JSON.parse(localStorage.questions);
 }
 
+function getPropositions(index) {
+    return getQuestions()[index].propositions;
+}
+
 function getRecord() {
     const record = JSON.parse(localStorage.record);
     record.creationDate = new Date(record.creationDate);
     return record;
+}
+
+function getMaxScore() {
+    // une proposition true = 1 point
+    let questions = getQuestions();
+    let propositionsTrue = [];
+    questions.forEach(question => {
+        if (question.propositions.length > 0) {
+            propositionsTrue = propositionsTrue.concat(question.propositions.filter(proposition => proposition.correct));
+        }
+    });
+    return propositionsTrue.length;
 }
 
 function setNewRecord(newName, newScore) {
@@ -89,13 +106,16 @@ function setNewRecord(newName, newScore) {
         score: newScore,
         creationDate: new Date()
     };
-    if (newName !== getRecord().holderName) {
+    if (newName !== oldRecord.holderName) {
         localStorage.setItem('record', JSON.stringify(newRecord));
         labelRecord.innerText = 'Record détenu par ' + newName + ' avec ' + newScore + ' point(s)';
     }
 
 }
 
+/***
+ *  Si plusieurs personnes obtienenent le record max
+ */
 function setExAequoRecord(newName) {
     const record = getRecord();
     if (!record.holderName.includes(newName) || newName !== '') {
@@ -104,26 +124,6 @@ function setExAequoRecord(newName) {
         labelRecord.innerText = 'Record détenu par ' + record.holderName + ' avec ' + record.score + ' point(s)';
     }
 
-}
-
-function resetRecord() {
-    localStorage.setItem('record', JSON.stringify({
-        holderName: "",
-        score: 0,
-        creationDate: null
-    }));
-    labelRecord.innerText = 'Aucun record détenu pour le moment.';
-}
-
-function updateQuestions(updatedQuestions) {
-    localStorage.setItem('questions', JSON.stringify(updatedQuestions));
-    resetRecord();
-    labelTotQuestion.innerText = getQuestions().length + ' question(s)';
-    if (updatedQuestions.length === 0) {
-        btnLancer.style.display = "none";
-    } else {
-        btnLancer.style.display = "block";
-    }
 }
 
 function addQuestion(newQuestion) {
@@ -141,25 +141,12 @@ function addProposition(newProposition, qIndex) {
     updateQuestions(questions);
 }
 
-function getMaxScore() {
-    // une proposition true = 1 point
-    let questions = getQuestions();
-    let propositionsTrue = [];
-    questions.forEach(question => {
-        if (question.propositions.length > 0) {
-            propositionsTrue = propositionsTrue.concat(question.propositions.filter(proposition => proposition.correct));
-        }
-    });
-    return propositionsTrue.length;
-}
-function getPropositions(index) {
-    return getQuestions()[index].propositions;
-}
 function tooglePropositionValue(qIndex, pIndex) {
     const questions = getQuestions();
     questions[qIndex].propositions[pIndex].correct = !questions[qIndex].propositions[pIndex].correct;
     updateQuestions(questions);
 }
+
 function rmProposition(qIndex, pIndex) {
     const questions = getQuestions();
     questions[qIndex].propositions.splice(pIndex, 1);
@@ -168,6 +155,7 @@ function rmProposition(qIndex, pIndex) {
     editQuiz();
 
 }
+
 function rmQuestion(qIndex) {
     const questions = getQuestions();
     questions.splice(qIndex, 1);
@@ -176,11 +164,42 @@ function rmQuestion(qIndex) {
     editQuiz();
 
 }
+
+/**
+ * remplace l'object "questions" dans le local storage
+ */
+function updateQuestions(updatedQuestions) {
+    localStorage.setItem('questions', JSON.stringify(updatedQuestions));
+    resetRecord();
+    labelTotQuestion.innerText = getQuestions().length + ' question(s)';
+    if (updatedQuestions.length === 0) {
+        btnLancer.style.display = "none";
+    } else {
+        btnLancer.style.display = "block";
+    }
+}
+
+/**
+ * appelé à la suite de chaque modification de question
+ */
+function resetRecord() {
+    localStorage.setItem('record', JSON.stringify({
+        holderName: "",
+        score: 0,
+        creationDate: null
+    }));
+    labelRecord.innerText = 'Aucun record détenu pour le moment.';
+}
+
+/**
+ * supression de touts les l'elements enfant d'un element donné
+ */
 function domRemoveAllChilds(parent) {
     while (parent.firstChild) {
         parent.firstChild.remove();
     }
 }
+
 /***
  * Vérifie que toutes les questions ont au moins 2 propositions et si elles ne sont pas toutes fausses,
  * si au moins 1 une question ne satifait pas cette condition, on cache le bouton "lancer".
@@ -199,53 +218,36 @@ function isQuizzPlayable() {
             btnLancer.style.display = "block";
         }
     }
-
 }
 
+/**
+ * Bouton éditer
+ */
 function editQuiz() {
     isQuizzPlayable();
     helloHome.style.display = "none";
     btnEditer.style.display = "none";
     btnHome.style.display = "block";
-    let questions = getQuestions();
 
-    let j = 0;
-    for (question of questions) {
-        const qElement = document.createElement("div");
-        qElement.setAttribute("id", "question" + j);
-        qElement.setAttribute("name", "question");
-        qElement.innerHTML += `
-        <legend><i class="fas fa-times" style="color: red; margin-right: 10px;" onclick="rmQuestion(${j})"></i><span>${question.heading}</span></legend>
-    `;
-        let i = 0;
-        for (proposition of question.propositions) {
-            qElement.innerHTML += `
-        <div class="form-check form-check-inline proposition">
-            <i class="fas fa-times" style="color: red; margin-right: 5px;" onclick="rmProposition(${j},${i})"></i>
-            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${j}:${i}" value="${i}" ${(proposition.correct ? "checked" : "")}>
-            <label class="form-check-label" for="proposition${i}">${proposition.content}</label>
-        </div>
-    `;
-            i++;
-        }
-        qElement.innerHTML += '<input type="text" class="form-control propositions" name="question' + j + '" placeholder="Ajouter une proposition">';
-        panelRight.appendChild(qElement);
-        j++
-    }
-    panelRight.innerHTML += '<div><input type="text" class="form-control" style="margin-top: 20px;" name="question' + j + '" placeholder="Ajouter une question"></div>';
+    let questions = getQuestions();
+    displayAllQuestions(questions);
+
     let nodes = Array.prototype.slice.call(panelRight.children);
+    // si changement dans les champs "ajouter propositions" et "ajouter question"
     panelRight.querySelectorAll('input[type="text"]').forEach(element => {
         element.addEventListener("change", (e) => {
             qIndex = nodes.indexOf(element.parentNode);
+            // si champs "ajouter question" (dernier champ input)
             if (qIndex === questions.length) {
                 addQuestion(element.value);
-            } else {
+            } else { // si champs "ajouter propositions"
                 addProposition(element.value, qIndex);
             }
             domRemoveAllChilds(panelRight);
             editQuiz();
         }, false)
     });
+    // si changement changement true/false sur une proposition
     panelRight.querySelectorAll('input[type="checkbox"]').forEach(element => {
         element.addEventListener("change", (e) => {
             const indexes = element.id.split(':').map(item => parseInt(item));
@@ -256,15 +258,41 @@ function editQuiz() {
             currentMaxScore = getMaxScore();
             editQuiz();
         }, false)
-
     });
+}
+
+function displayAllQuestions(questions){
+    let qIndex = 0;
+    for (question of questions) {
+        const qElement = document.createElement("div");
+        qElement.setAttribute("id", "question" + qIndex);
+        qElement.setAttribute("name", "question");
+        qElement.innerHTML += `
+        <legend><i class="fas fa-times" style="color: red; margin-right: 10px;" onclick="rmQuestion(${qIndex})"></i><span>${question.heading}</span></legend>
+    `;
+        let pIndex = 0;
+        for (proposition of question.propositions) {
+            qElement.innerHTML += `
+        <div class="form-check form-check-inline proposition">
+            <i class="fas fa-times" style="color: red; margin-right: 5px;" onclick="rmProposition(${qIndex},${pIndex})"></i>
+            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${qIndex}:${pIndex}" value="${pIndex}" ${(proposition.correct ? "checked" : "")}>
+            <label class="form-check-label" for="proposition${pIndex}">${proposition.content}</label>
+        </div>
+    `;
+            pIndex++;
+        }
+        qElement.innerHTML += '<input type="text" class="form-control propositions" name="question' + qIndex + '" placeholder="Ajouter une proposition">';
+        panelRight.appendChild(qElement);
+        qIndex++
+    }
+    panelRight.innerHTML += '<div><input type="text" class="form-control" style="margin-top: 20px;" name="question' + qIndex + '" placeholder="Ajouter une question"></div>';
 }
 
 function lancerQuiz() {
     domRemoveAllChilds(panelRight);
-    labelTotQuestion.innerText = '1/' + getQuestions().length + ' question(s)';
-    labelScore.innerText = currentScore + '/' + currentMaxScore + 'point(s)';
     let questions = getQuestions();
+    labelTotQuestion.innerText = '1/' + questions.length + ' question(s)';
+    labelScore.innerText = currentScore + '/' + currentMaxScore + 'point(s)';
     currentQuestionIndex = 0;
     helloHome.style.display = "none";
     btnLancer.style.display = "none";
@@ -276,6 +304,7 @@ function lancerQuiz() {
 }
 
 function showQuestion(question) {
+    // si dernière question
     if (currentQuestionIndex === getQuestions().length - 1) {
         btnSuite.innerText = "Terminer";
     }
@@ -296,7 +325,7 @@ function showQuestion(question) {
     panelRight.appendChild(para);
 }
 
-function updateScore(propositions) {
+function updateCurrentScore(propositions) {
     let form = document.querySelector('form');
     let checkboxes = form.querySelectorAll('input[name="question' + currentQuestionIndex + '"]');
     for (checkbox of checkboxes) {
@@ -313,14 +342,16 @@ function updateScore(propositions) {
 }
 
 function showNextQuestion() {
-    updateScore(getPropositions(currentQuestionIndex));
+    updateCurrentScore(getPropositions(currentQuestionIndex));
     domRemoveAllChilds(panelRight);
-    if (currentQuestionIndex === getQuestions().length - 1) {
+    let questions = getQuestions();
+    // si c'était la dernière question
+    if (currentQuestionIndex === questions.length - 1) {
         terminateQuiz();
     } else {
         currentQuestionIndex++;
-        labelTotQuestion.innerText = 1 + currentQuestionIndex + '/' + getQuestions().length + ' question(s)';
-        showQuestion(getQuestions()[currentQuestionIndex]);
+        labelTotQuestion.innerText = 1 + currentQuestionIndex + '/' + questions.length + ' question(s)';
+        showQuestion(questions[currentQuestionIndex]);
     }
 }
 
@@ -329,7 +360,7 @@ function terminateQuiz() {
     btnSuite.style.display = 'none';
     btnSuite.innerText = "Suivante";
 
-    if (currentScore >= getRecord().score && currentScore !== 0) {
+    if (currentScore >= currentRecord.score && currentScore !== 0) {
         formWhatUrName = document.createElement('div');
         formWhatUrName.classList.add('form-group');
         formWhatUrName.innerHTML += `
@@ -337,9 +368,6 @@ function terminateQuiz() {
         <input type="text" class="form-control propositions" name="whatUrName" id="name" placeholder="Votre nom">
         `;
         panelRight.appendChild(formWhatUrName);
-        document.querySelector('[name="whatUrName"]').addEventListener("change", (e) => {
-            goBackHome();
-        }, false);
 
         if (currentScore > getRecord().score) {
             const success = document.createElement("div");
@@ -352,14 +380,17 @@ function terminateQuiz() {
             draw.appendChild(document.createTextNode('Bravo ! Vous détenez le record ex aequo avec ' + currentRecord.holderName + ' !'));
             formWhatUrName.before(draw);
         }
+
+        document.querySelector('[name="whatUrName"]').addEventListener("change", (e) => {
+            goBackHome();
+        }, false);
+
     } else {
-        console.log(currentRecord);
         const ulose = document.createElement("p");
         ulose.classList.add('h2');
         ulose.appendChild(document.createTextNode(currentRecord.score === 0 ? "Vous n'avez pas décroché le record" : "Dommage, le record est toujours détenu par " + currentRecord.holderName + " avec " + currentRecord.score + " point(s)"));
         panelRight.appendChild(ulose);
     }
-
 }
 
 function goBackHome() {
