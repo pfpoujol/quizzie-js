@@ -32,17 +32,17 @@ window.addEventListener('load', function () {
     helloHome = document.getElementById("helloHome");
     panelRight = document.getElementById("panelRight");
 
-    if(dsAlreadyExist){
+    if (dsAlreadyExist) {
         record = getRecord();
         questions = getQuestions();
         labelTotQuestion.innerText = questions.length + ' question(s)';
-        if( record.creationDate ) {
+        if (record.creationDate) {
             labelRecord.innerText = 'Record détenu par ' + getRecord().holderName + ' avec ' + getRecord().score + ' point(s)';
         } else {
             labelRecord.innerText = 'Aucun record détenu pour le moment.';
         }
         currentMaxScore = getMaxScore();
-        if(questions.length===0) {
+        if (questions.length === 0) {
             btnLancer.style.display = 'none';
         }
         isQuizzPlayable();
@@ -79,8 +79,8 @@ function getRecord() {
     return record;
 }
 
-function setNewRecord(newName, newScore){
-    if(newName === ''){
+function setNewRecord(newName, newScore) {
+    if (newName === '') {
         newName = 'Anonymous';
     }
     const oldRecord = getRecord();
@@ -115,11 +115,11 @@ function resetRecord() {
     labelRecord.innerText = 'Aucun record détenu pour le moment.';
 }
 
-function updateQuestions(updatedQuestions){
+function updateQuestions(updatedQuestions) {
     localStorage.setItem('questions', JSON.stringify(updatedQuestions));
     resetRecord();
     labelTotQuestion.innerText = getQuestions().length + ' question(s)';
-    if(updatedQuestions.length===0 ) {
+    if (updatedQuestions.length === 0) {
         btnLancer.style.display = "none";
     } else {
         btnLancer.style.display = "block";
@@ -131,6 +131,7 @@ function addQuestion(newQuestion) {
     questions.push({heading: newQuestion, propositions: []});
     updateQuestions(questions);
 }
+
 function addProposition(newProposition, qIndex) {
     let questions = getQuestions();
     questions[qIndex].propositions.push({
@@ -139,35 +140,60 @@ function addProposition(newProposition, qIndex) {
     });
     updateQuestions(questions);
 }
+
 function getMaxScore() {
     // une proposition true = 1 point
     let questions = getQuestions();
     let propositionsTrue = [];
     questions.forEach(question => {
-        if(question.propositions.length > 0) {
+        if (question.propositions.length > 0) {
             propositionsTrue = propositionsTrue.concat(question.propositions.filter(proposition => proposition.correct));
         }
     });
     return propositionsTrue.length;
 }
-
 function getPropositions(index) {
     return getQuestions()[index].propositions;
 }
+function tooglePropositionValue(qIndex, pIndex) {
+    const questions = getQuestions();
+    questions[qIndex].propositions[pIndex].correct = !questions[qIndex].propositions[pIndex].correct;
+    updateQuestions(questions);
+}
+function rmProposition(qIndex, pIndex) {
+    const questions = getQuestions();
+    questions[qIndex].propositions.splice(pIndex, 1);
+    updateQuestions(questions);
+    domRemoveAllChilds(panelRight);
+    editQuiz();
 
+}
+function rmQuestion(qIndex) {
+    const questions = getQuestions();
+    questions.splice(qIndex, 1);
+    updateQuestions(questions);
+    domRemoveAllChilds(panelRight);
+    editQuiz();
+
+}
+function domRemoveAllChilds(parent) {
+    while (parent.firstChild) {
+        parent.firstChild.remove();
+    }
+}
 /***
  * Vérifie que toutes les questions ont au moins 2 propositions et si elles ne sont pas toutes fausses,
  * si au moins 1 une question ne satifait pas cette condition, on cache le bouton "lancer".
  ***/
 function isQuizzPlayable() {
     let questions = getQuestions();
-    if(questions.length === 0) {
+    if (questions.length === 0) {
         btnLancer.style.display = "none";
     } else {
         qWithFewProp = questions.some((question) => {
             return question.propositions.length <= 1 || question.propositions.every(proposition => proposition ? !proposition.correct : true);
         });
-        if(qWithFewProp) {
+        if (qWithFewProp) {
             btnLancer.style.display = "none";
         } else {
             btnLancer.style.display = "block";
@@ -176,13 +202,7 @@ function isQuizzPlayable() {
 
 }
 
-function tooglePropositionValue(qIndex, pIndex) {
-    const questions = getQuestions();
-    questions[qIndex].propositions[pIndex].correct = !questions[qIndex].propositions[pIndex].correct;
-    updateQuestions(questions);
-}
-
-function editQuiz () {
+function editQuiz() {
     isQuizzPlayable();
     helloHome.style.display = "none";
     btnEditer.style.display = "none";
@@ -192,32 +212,32 @@ function editQuiz () {
     let j = 0;
     for (question of questions) {
         const qElement = document.createElement("div");
-        qElement.setAttribute("id", "question"+j);
+        qElement.setAttribute("id", "question" + j);
         qElement.setAttribute("name", "question");
         qElement.innerHTML += `
         <legend><i class="fas fa-times" style="color: red; margin-right: 10px;" onclick="rmQuestion(${j})"></i><span>${question.heading}</span></legend>
     `;
         let i = 0;
         for (proposition of question.propositions) {
-            qElement.innerHTML +=`
+            qElement.innerHTML += `
         <div class="form-check form-check-inline proposition">
             <i class="fas fa-times" style="color: red; margin-right: 5px;" onclick="rmProposition(${j},${i})"></i>
-            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${j}:${i}" value="${i}" ${ (proposition.correct ? "checked": "") }>
+            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${j}:${i}" value="${i}" ${(proposition.correct ? "checked" : "")}>
             <label class="form-check-label" for="proposition${i}">${proposition.content}</label>
         </div>
     `;
             i++;
         }
-        qElement.innerHTML += '<input type="text" class="form-control propositions" name="question'+j+'" placeholder="Ajouter une proposition">';
+        qElement.innerHTML += '<input type="text" class="form-control propositions" name="question' + j + '" placeholder="Ajouter une proposition">';
         panelRight.appendChild(qElement);
         j++
     }
-    panelRight.innerHTML += '<div><input type="text" class="form-control" style="margin-top: 20px;" name="question'+j+'" placeholder="Ajouter une question"></div>';
-    let nodes = Array.prototype.slice.call( panelRight.children );
+    panelRight.innerHTML += '<div><input type="text" class="form-control" style="margin-top: 20px;" name="question' + j + '" placeholder="Ajouter une question"></div>';
+    let nodes = Array.prototype.slice.call(panelRight.children);
     panelRight.querySelectorAll('input[type="text"]').forEach(element => {
         element.addEventListener("change", (e) => {
-            qIndex = nodes.indexOf( element.parentNode);
-            if(qIndex === questions.length) {
+            qIndex = nodes.indexOf(element.parentNode);
+            if (qIndex === questions.length) {
                 addQuestion(element.value);
             } else {
                 addProposition(element.value, qIndex);
@@ -240,27 +260,6 @@ function editQuiz () {
     });
 }
 
-function rmProposition(qIndex, pIndex){
-    const questions = getQuestions();
-    questions[qIndex].propositions.splice(pIndex,1);
-    updateQuestions(questions);
-    domRemoveAllChilds(panelRight);
-    editQuiz();
-
-}
-function rmQuestion(qIndex){
-    const questions = getQuestions();
-    questions.splice(qIndex,1);
-    updateQuestions(questions);
-    domRemoveAllChilds(panelRight);
-    editQuiz();
-
-}
-function domRemoveAllChilds(parent){
-    while (parent.firstChild) {
-        parent.firstChild.remove();
-    }
-}
 function lancerQuiz() {
     domRemoveAllChilds(panelRight);
     labelTotQuestion.innerText = '1/' + getQuestions().length + ' question(s)';
@@ -340,7 +339,7 @@ function terminateQuiz() {
         panelRight.appendChild(formWhatUrName);
         document.querySelector('[name="whatUrName"]').addEventListener("change", (e) => {
             goBackHome();
-            }, false);
+        }, false);
 
         if (currentScore > getRecord().score) {
             const success = document.createElement("div");
@@ -350,20 +349,21 @@ function terminateQuiz() {
         } else if (currentScore === getRecord().score) {
             const draw = document.createElement("p");
             draw.classList.add('h2');
-            draw.appendChild(document.createTextNode('Bravo ! Vous détenez le record ex aequo avec '+ currentRecord.holderName +' !'));
+            draw.appendChild(document.createTextNode('Bravo ! Vous détenez le record ex aequo avec ' + currentRecord.holderName + ' !'));
             formWhatUrName.before(draw);
         }
     } else {
         console.log(currentRecord);
         const ulose = document.createElement("p");
         ulose.classList.add('h2');
-        ulose.appendChild(document.createTextNode( currentRecord.score === 0 ? "Vous n'avez pas décroché le record" : "Dommage, le record est toujours détenu par "+ currentRecord.holderName +" avec "+ currentRecord.score +" point(s)"));
+        ulose.appendChild(document.createTextNode(currentRecord.score === 0 ? "Vous n'avez pas décroché le record" : "Dommage, le record est toujours détenu par " + currentRecord.holderName + " avec " + currentRecord.score + " point(s)"));
         panelRight.appendChild(ulose);
     }
 
 }
+
 function goBackHome() {
-    if (formWhatUrName){
+    if (formWhatUrName) {
         const name = document.querySelector('[name="whatUrName"]').value;
         if (currentScore === getRecord().score) {
             setExAequoRecord(name);
@@ -382,9 +382,8 @@ function goBackHome() {
     btnSuite.style.display = "none";
     labelScore.style.display = "none";
     domRemoveAllChilds(panelRight);
-    currentQuestionIndex=0;
+    currentQuestionIndex = 0;
     currentScore = 0;
-
 }
 
 

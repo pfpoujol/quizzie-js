@@ -2,15 +2,15 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
     <title>Quizzie</title>
     <!--
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="quizzie.js"></script>
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
     -->
-    <link rel="stylesheet" href="fontawesome/css/all.min.css">
-    <link rel="stylesheet" href="bootstrap.css">
+    <link href="fontawesome/css/all.min.css" rel="stylesheet">
+    <link href="bootstrap.css" rel="stylesheet">
     <script src="../evaluations/quizzie.js">
     </script>
     <style>
@@ -22,35 +22,57 @@
 
 </head>
 <body>
-    <div class="container-fluid" style="padding-top: 15px">
-        <div class="alert alert-info" role="alert">
-            <section class="text-center">⚠ Projet en cours ⚠</section>
-            <p>Pour pouvoir jouer il faut que :<p/>
-            <ul>
-                <li>Chaque questions a au moins 2 propositions</li>
-                <li>Chaque question a au moins une 1 proposition juste</li>
-            </ul>
-        </div>
+<div class="container-fluid" style="padding-top: 15px">
+    <div class="container alert alert-info" role="alert">
 
         <div class="row">
-            <div class="col border-right" >
+            <div class="col-sm">
+                <p>Pour pouvoir jouer (si édition du quiz) :
+                <p/>
+                <ul>
+                    <li>Chaque question doit avoir au moins 2 propositions</li>
+                    <li>Chaque question doit avoir au moins une 1 proposition juste</li>
+                </ul>
+            </div>
+            <div class="col-sm">
+                <p>Pendant le jeu :
+                <p/>
+                <ul>
+                    <li>Ne pas cocher un bonne réponse n'enleve pas de point</li>
+                    <li>Cocher une mauvaise réponse enleve un point</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="card container" style="min-height: 400px">
+        <div class="card-body row">
+            <div class="col-sm border-right">
                 <p>
-                    <div id="labelTotQuestion"></div>
+                <div id="labelTotQuestion"></div>
 
                 </p>
                 <p id="labelScore"></p>
                 <p id="labelRecord"></p>
                 <div style="display: flex; flex-wrap: wrap;">
-                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnHome" onclick="goBackHome()">Accueil</button>
-                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnEditer" onclick="editQuiz()">Editer</button>
-                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnLancer" onclick="lancerQuiz()">Lancer</button>
-                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnSuite" onclick="showNextQuestion()">Suivante</button>
+                    <button class="btn btn-primary" id="btnHome" onclick="goBackHome()" style="margin-right:5px;"
+                            type="button">Accueil
+                    </button>
+                    <button class="btn btn-primary" id="btnEditer" onclick="editQuiz()" style="margin-right:5px;"
+                            type="button">Editer
+                    </button>
+                    <button class="btn btn-primary" id="btnLancer" onclick="lancerQuiz()" style="margin-right:5px;"
+                            type="button">Lancer
+                    </button>
+                    <button class="btn btn-primary" id="btnSuite" onclick="showNextQuestion()" style="margin-right:5px;"
+                            type="button">Suivante
+                    </button>
                 </div>
             </div>
-            <div  class="col-8 border-left">
+            <div class="col-sm-8 border-left">
                 <div id="helloHome">
                     <p class="h2">Bienvenue sur Quizzie</p>
-                    <p>Vous pouvez lancer le quiz ou l'éditer our y apporter vos propres questions</p>
+                    <p>Vous pouvez lancer le quiz ou l'éditer pour y apporter vos propres questions</p>
                 </div>
                 <div id="panelRight">
 
@@ -58,5 +80,6 @@
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>
