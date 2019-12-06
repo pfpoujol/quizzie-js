@@ -14,13 +14,22 @@
     <script src="../evaluations/quizzie.js">
     </script>
     <style>
+        .propositions {
+            width: 200px;
+            display: inline;
+        }
     </style>
 
 </head>
 <body>
     <div class="container-fluid" style="padding-top: 15px">
-        <div class="alert alert-info text-center" role="alert">
-            <section>⚠ Projet en cours ⚠</section>
+        <div class="alert alert-info" role="alert">
+            <section class="text-center">⚠ Projet en cours ⚠</section>
+            <p>Pour pouvoir jouer il faut que :<p/>
+            <ul>
+                <li>Chaque questions a au moins 2 propositions</li>
+                <li>Chaque question a au moins une 1 proposition juste</li>
+            </ul>
         </div>
 
         <div class="row">
@@ -32,10 +41,10 @@
                 <p id="labelScore"></p>
                 <p id="labelRecord"></p>
                 <div style="display: flex; flex-wrap: wrap;">
-                    <button id="btnHome" onclick="goBackHome()">Accueil</button>
-                    <button id="btnEditer" onclick="editQuiz()">Editer</button>
-                    <button id="btnLancer" onclick="lancerQuiz()">Lancer</button>
-                    <button id="btnSuite" onclick="showNextQuestion()">Suivante</button>
+                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnHome" onclick="goBackHome()">Accueil</button>
+                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnEditer" onclick="editQuiz()">Editer</button>
+                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnLancer" onclick="lancerQuiz()">Lancer</button>
+                    <button type="button" class="btn btn-primary" style="margin-right:5px;" id="btnSuite" onclick="showNextQuestion()">Suivante</button>
                 </div>
             </div>
             <div  class="col-8 border-left">

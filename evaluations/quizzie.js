@@ -39,6 +39,7 @@ window.addEventListener('load', function () {
         if(getQuestions().length===0) {
             btnLancer.style.display = 'none';
         }
+        isQuizzPlayable();
     }
 
 });
@@ -113,7 +114,14 @@ function addQuestion(newQuestion) {
     questions.push({heading: newQuestion, propositions: []});
     updateQuestions(questions);
 }
-
+function addProposition(newProposition, qIndex) {
+    let questions = getQuestions();
+    questions[qIndex].propositions.push({
+        content: newProposition,
+        correct: false
+    });
+    updateQuestions(questions);
+}
 function getMaxScore() {
     // une proposition true = 1 point
     let questions = getQuestions();
@@ -130,7 +138,25 @@ function getPropositions(index) {
     return getQuestions()[index].propositions;
 }
 
+/***
+ * Vérifie que toutes les questions ont au moins 2 propositions et si elles ne sont pas toutes fausses,
+ * si au moins 1 une question ne satifait pas cette condition, on cache le bouton "lancer".
+ ***/
+function isQuizzPlayable() {
+    console.log("test");
+    let questions = getQuestions();
+    qWithFewProp = questions.some((question) => {
+        return question.propositions.length <= 1 || question.propositions.every(proposition => proposition ? !proposition.correct : true);
+    });
+    if(qWithFewProp) {
+        btnLancer.style.display = "none";
+    } else {
+        btnLancer.style.display = "block";
+    }
+}
+
 function editQuiz () {
+    isQuizzPlayable();
     helloHome.style.display = "none";
     btnEditer.style.display = "none";
     btnHome.style.display = "block";
@@ -149,30 +175,30 @@ function editQuiz () {
             qElement.innerHTML +=`
         <div class="form-check form-check-inline proposition">
             <i class="fas fa-times" style="color: red; margin-right: 5px;" onclick="rmProposition(${j},${i})"></i>
-            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="proposition${i}" value="${i}">
+            <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${j}" value="${i}">
             <label class="form-check-label" for="proposition${i}">${proposition.content}</label>
         </div>
     `;
             i++;
         }
-        qElement.innerHTML += '<input type="text" name="question'+j+'" placeholder="Ajouter une proposition">';
+        qElement.innerHTML += '<input type="text" class="form-control propositions" name="question'+j+'" placeholder="Ajouter une proposition">';
         panelRight.appendChild(qElement);
         j++
     }
-    panelRight.innerHTML += '<div><input type="text" name="question'+j+'" placeholder="Ajouter une question"></div>';
-
-    panelRight.querySelectorAll('input[type="text"]').forEach(element => element.addEventListener("change", (e) => {
-        console.log(element.name, questions.length+1);
-        if(element.name==="question" + questions.length) {
-            console.log('question',element.value);
-            addQuestion(element.value);
-        } else {
-            console.log('proposition',element.value);
-            addProposition();
-        }
-        domRemoveAllChilds(panelRight);
-        editQuiz();
-    }, false))
+    panelRight.innerHTML += '<div><input type="text" class="form-control" style="margin-top: 20px;" name="question'+j+'" placeholder="Ajouter une question"></div>';
+    let nodes = Array.prototype.slice.call( panelRight.children );
+    panelRight.querySelectorAll('input[type="text"]').forEach(element => {
+        element.addEventListener("change", (e) => {
+            qIndex = nodes.indexOf( element.parentNode);
+            if(qIndex === questions.length) {
+                addQuestion(element.value);
+            } else {
+                addProposition(element.value, qIndex);
+            }
+            domRemoveAllChilds(panelRight);
+            editQuiz();
+        }, false)
+    })
 }
 
 function rmProposition(qIndex, pIndex){
@@ -270,7 +296,7 @@ function terminateQuiz() {
         formWhatUrName.classList.add('form-group');
         formWhatUrName.innerHTML += `
         <label for="name">Quel est votre nom ?</label>
-        <input type="text" class="form-control" name="whatUrName" id="name" placeholder="Votre nom">
+        <input type="text" class="form-control propositions" name="whatUrName" id="name" placeholder="Votre nom">
         `;
         panelRight.appendChild(formWhatUrName);
 
