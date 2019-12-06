@@ -1,3 +1,7 @@
+/******************************
+ * Projet terminé le 06/12/19 *
+ ******************************/
+
 // globals variables
 let dsAlreadyExist = false;
 let currentQuestionIndex = 0;
