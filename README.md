@@ -1,8 +1,7 @@
-Projet en cours
+Projet terminé le 06/12/19
 =======
 
 Versionning : https://github.com/pfpoujol/quizzie-js
 
 Todo : 
-- correction des bugs
-- faire marcher font awesome sur glitch
+- faire marcher Font Awesome sur glitch
