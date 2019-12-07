@@ -278,18 +278,18 @@ function displayAllQuestions(questions){
         for (proposition of question.propositions) {
             qElement.innerHTML += `
         <div class="form-check form-check-inline proposition">
-            <i class="fas fa-times" style="color: red; margin-right: 5px;" onclick="rmProposition(${qIndex},${pIndex})"></i>
+            <i class="fas fa-times" style="color: red; margin-right: 7px;" onclick="rmProposition(${qIndex},${pIndex})"></i>
             <input class="form-check-input" type="checkbox" name="question${currentQuestionIndex}" id="${qIndex}:${pIndex}" value="${pIndex}" ${(proposition.correct ? "checked" : "")}>
             <label class="form-check-label" for="proposition${pIndex}">${proposition.content}</label>
         </div>
     `;
             pIndex++;
         }
-        qElement.innerHTML += '<input type="text" class="form-control propositions" name="question' + qIndex + '" placeholder="Ajouter une proposition">';
+        qElement.innerHTML += '<input type="text" class="form-control proposition" name="question' + qIndex + '" placeholder="&#xf067;  Ajouter une proposition">';
         panelRight.appendChild(qElement);
         qIndex++
     }
-    panelRight.innerHTML += '<div><input type="text" class="form-control" style="margin-top: 20px;" name="question' + qIndex + '" placeholder="Ajouter une question"></div>';
+    panelRight.innerHTML += '<div><input type="text" class="form-control input-text" style="margin-top: 20px;" name="question' + qIndex + '" placeholder="&#xf067;  Ajouter une question"></div>';
 }
 
 function lancerQuiz() {
@@ -310,7 +310,8 @@ function lancerQuiz() {
 function showQuestion(question) {
     // si dernière question
     if (currentQuestionIndex === getQuestions().length - 1) {
-        btnSuite.innerText = "Terminer";
+  
+        btnSuite.innerHTML = "<i class='fas fa-hand-peace'></i> Terminer";
     }
     const para = document.createElement("form");
     para.innerHTML += `
@@ -362,14 +363,14 @@ function showNextQuestion() {
 function terminateQuiz() {
     currentRecord = getRecord();
     btnSuite.style.display = 'none';
-    btnSuite.innerText = "Suivante";
+    btnSuite.innerHTML = "<i class='fas fa-chevron-right'></i> Suivante";
 
     if (currentScore >= currentRecord.score && currentScore !== 0) {
         formWhatUrName = document.createElement('div');
         formWhatUrName.classList.add('form-group');
         formWhatUrName.innerHTML += `
-        <label for="name">Quel est votre nom ?</label>
-        <input type="text" class="form-control propositions" name="whatUrName" id="name" placeholder="Votre nom">
+        <label for="name">Quel est votre nom ? </label>
+        <input type="text" class="form-control proposition" name="whatUrName" id="name" placeholder="&#xf164;  Votre nom de vainqueur" style="margin-left: 5px">
         `;
         panelRight.appendChild(formWhatUrName);
 

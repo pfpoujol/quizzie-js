@@ -8,14 +8,20 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="quizzie.js"></script>
-        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-   
-    </script>
+    <script src="https://kit.fontawesome.com/a39f72b840.js" crossorigin="anonymous"></script>   
+
     <style>
-        .propositions {
-            width: 200px;
+        .proposition {
+            width: 225px;
             display: inline;
+            font-family:Arial, FontAwesome;
         }
+      .input-text {
+        font-family:Arial, FontAwesome;
+      }
+      .my-btn {
+        margin:0 5px 5px 0;
+      }
     </style>
 
 </head>
@@ -53,17 +59,17 @@
                 <p id="labelScore"></p>
                 <p id="labelRecord"></p>
                 <div style="display: flex; flex-wrap: wrap;">
-                    <button class="btn btn-primary" id="btnHome" onclick="goBackHome()" style="margin-right:5px;"
-                            type="button">Accueil
+                    <button class="btn btn-primary my-btn" id="btnHome" onclick="goBackHome()"
+                            type="button"><i class="fas fa-home"></i> Accueil
                     </button>
-                    <button class="btn btn-primary" id="btnEditer" onclick="editQuiz()" style="margin-right:5px;"
-                            type="button">Editer
+                    <button class="btn btn-primary my-btn" id="btnEditer" onclick="editQuiz()"
+                            type="button"><i class="fas fa-pen"></i> Editer
                     </button>
-                    <button class="btn btn-primary" id="btnLancer" onclick="lancerQuiz()" style="margin-right:5px;"
-                            type="button">Lancer
+                    <button class="btn btn-primary my-btn" id="btnLancer" onclick="lancerQuiz()" 
+                            type="button"><i class="fas fa-gamepad"></i> Lancer
                     </button>
-                    <button class="btn btn-primary" id="btnSuite" onclick="showNextQuestion()" style="margin-right:5px;"
-                            type="button">Suivante
+                    <button class="btn btn-primary my-btn" id="btnSuite" onclick="showNextQuestion()"
+                            type="button"><i class="fas fa-chevron-right"></i> Suivante
                     </button>
                 </div>
             </div>
